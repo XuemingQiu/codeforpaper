@@ -9,10 +9,7 @@ import csv
 import math
 import random
 import re
-<<<<<<< HEAD
 from datetime import datetime
-=======
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
 
 import jieba
 import numpy as np
@@ -25,7 +22,6 @@ jieba.load_userdict("docs/lexicon.txt")
 
 __all__ = ['GetLDA', 'CsvOp', 'PreDealData', 'ExteactSummary']
 
-<<<<<<< HEAD
 # 模型参数名称和位置
 tf_model = "model/tfmodel"
 lda_model = "model/ldamodel"
@@ -45,13 +41,14 @@ max_features = 10000  # 最大的单词个数
 
 class GetLDA:
     def __init__(self, corpus=None):
+        # lda parameter
         self.alpha = alpha
         self.n_topics = n_topics
         self.beta = beta
         self.corpus = corpus
         self.max_iters = max_iters
-        self.n_top_wpords = n_top_wpords
-        
+        self.n_top_words = n_top_wpords
+        # tfidf countvetcor
         self.max_df = max_df
         self.min_df = min_df
         self.max_features = max_features
@@ -73,39 +70,9 @@ class GetLDA:
                                                  learning_method='batch')
             ldamodel.fit(tf)
             joblib.dump(ldamodel, lda_model)
-=======
-
-class GetLDA:
-    def __init__(self, corpus=None):
-        self.alpha = 0.1
-        self.n_topics = 25
-        self.beta = 0.01
-        self.corpus = corpus
-        self.max_iters = 100
-        self.n_top_wpords = 50
-    
-    def train(self):
-        try:
-            tf_vectorize = joblib.load("model/tfmodel")
-            tf = tf_vectorize.fit_transform(self.corpus)
-        except:
-            tf_vectorize = CountVectorizer(max_df=0.95, min_df=2, max_features=10000)
-            tf = tf_vectorize.fit_transform(self.corpus)
-            joblib.dump(tf_vectorize, "model/tfmodel")
-        print("complete training tfidf........")
-        try:
-            ldamodel = joblib.load("model/ldamodel")
-            # ldamodel.fit(tf)
-        except:
-            ldamodel = LatentDirichletAllocation(n_components=self.n_topics, max_iter=self.max_iters,
-                                                 learning_method='batch')
-            ldamodel.fit(tf)
-            joblib.dump(ldamodel, "model/ldamodel")
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
         print("complete training lda !! ")
-        n_top_words = self.n_top_wpords
         tf_fetures_name = tf_vectorize.get_feature_names()
-        self.get_top_words(ldamodel, tf_fetures_name, n_top_words)
+        self.get_top_words(ldamodel, tf_fetures_name, self.n_top_words)
     
     def get_top_words(self, model, feature_names, n_top_words):
         topics = []
@@ -114,22 +81,15 @@ class GetLDA:
             print(" ".join([feature_names[i] for i in topic.argsort()[:-n_top_words - 1:-1]]))
             topics.append(" ".join([feature_names[i] for i in topic.argsort()[:-n_top_words - 1:-1]]))
         
-<<<<<<< HEAD
         with open(lda_result_topic, "w") as f:
-=======
-        with open("ldaresult/topics.txt", "w") as f:
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
             id = 0
             for topic in topics:
                 f.write("Topic " + str(id) + " " + topic + "\n")
                 id += 1
         print(model.components_)
         topics_p = pd.DataFrame(model.components_)
-<<<<<<< HEAD
+        
         topics_p.to_csv(lda_result_probility, index=False, header=0)
-=======
-        topics_p.to_csv("ldaresult/probility.txt", index=False, header=0)
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
     
     def get_p_of_topic_word(self):
         """
@@ -137,11 +97,7 @@ class GetLDA:
         """
         # 获取概率
         p = []
-<<<<<<< HEAD
         with open(lda_result_probility, "r") as f:
-=======
-        with open("ldaresult/probility.txt", "r") as f:
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
             for line in f.readlines():
                 temp = line.strip().split(",")
                 temp = [float(i) for i in temp]
@@ -154,11 +110,8 @@ class GetLDA:
         """
         # 获取主题下的单词
         theta_list = []
-<<<<<<< HEAD
+        
         with open(lda_result_topic, "r") as f:
-=======
-        with open("ldaresult/topics.txt", "r") as f:
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
             for line in f.readlines():
                 theta_list.append(line.strip().split()[2:])
         return theta_list
@@ -192,38 +145,22 @@ class PreDealData:
         pass
     
     def read_origin_data(self):
-<<<<<<< HEAD
+        
         """
         读取原来的case_info-456的数据
         :return:  title+content的内容，保存成csv
         """
-=======
-        '''
-        读取原来的case_info-456的数据
-        :return:  title+content的内容，保存成csv
-        '''
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
         print("starting reading origin data ~~~")
         filename = "docs/case_info-456.csv"
-        csvop = CsvOp()
-        data = csvop.csvReader(filename)
-        data = pd.DataFrame(data[1:],
-                            columns=['title', 'content'
-                                     ])
+        # csvop = CsvOp()
+        # data = csvop.csvReader(filename)
+        data = pd.read_csv(filename, header=0)
+        # data = pd.DataFrame(data[1:], columns=['title', 'content'])
         data = pd.DataFrame(data['CASE_TITLE'] + "。" + data['CASE_CONTENT'], columns=['content'])
         data.to_csv("data/origin.csv", index=False)
     
     def get_stop_word(self):
         print("starting reading stopword data ~~~")
-<<<<<<< HEAD
-        """
-        :return: 停用词表
-        """
-=======
-        '''
-        :return: 停用词表
-        '''
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
         path = "docs/stopword.txt"
         stopwords = []
         with open(path) as f:
@@ -233,36 +170,15 @@ class PreDealData:
     
     def cutword(self, setence_list):
         
-<<<<<<< HEAD
-        """
-        :param setence: 句子列表
-        :return: 分词结果
-        """
-=======
-        '''
-        :param setence: 句子列表
-        :return: 分词结果
-        '''
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
         print("starting cut setence to word lists ~~~")
         stopword = self.get_stop_word()
+        print("complete stop word reading = ", len(stopword))
         setences = []
         for i in setence_list:
             setences.append(" ".join([i for i in list(jieba.cut("。".join(i.split()))) if i not in stopword]))
         return setences
     
     def split_setentce_to_words(self):
-<<<<<<< HEAD
-        """
-        对原来的数据进行分词结果
-        :return: 保存分词后的结果
-        """
-=======
-        '''
-        对原来的数据进行分词结果
-        :return: 保存分词后的结果
-        '''
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
         print("starting read setence to cut  ~~~")
         self.read_origin_data()
         data2 = pd.read_csv("data/origin.csv", header=0)
@@ -285,22 +201,17 @@ class ExteactSummary:
     def __init__(self):
         pass
     
-<<<<<<< HEAD
     def computeKL(self, p, TW, SW, s):
-        """
-        :param p: 单词w在每个主题theta下的分布概率
-=======
-    # 计算主题摘要
-    def computeKL(self, p, TW, SW, s):
-        """
-        :param p: 单词w在每个主题theta下的分布概率
-        :param theta: 主题
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
-        :param TW: 主题theta下的top 500单词集
-        :param SW: 句子s移除停用词后的的集合
-        :param s: 就是句子s
-        :return: kl散度
-        """
+        """:param
+            TW: 主题theta下的top
+            500
+            单词集
+            :param
+            SW: 句子s移除停用词后的的集合
+            :param
+            s: 就是句子s
+            :return: kl散度
+            """
         KL = 0
         for w, sw in TW, SW:
             tf_w_s = 0  # 单词w在句子中出现的次数。
@@ -315,9 +226,13 @@ class ExteactSummary:
     
     def getSummaryExtraction(self, V, p_theta, theta_list, theta_index, TW):
         """
-        :param V:  句子集V
-        :param p_theta: 每个主题下每个单词的概率
-        :param theta_list: 主题-单词 表
+        :param
+        V: 句子集V
+        :param
+        p_theta: 每个主题下每个单词的概率
+        :param
+        theta_list: 主题 - 单词
+        表
         :return: 摘要的句子
         """
         E, U = [], V
@@ -333,9 +248,9 @@ class ExteactSummary:
         
         def sim(s1, s2):
             """
-            :param s1: 句子1
-            :param s2: 句子2
-            :return: 返回句子的余弦相似度
+            :param s1:
+            :param s2:
+            :return: 句子余弦相似度
             """
             # 分词
             cut1 = V_cut[s1]
@@ -359,22 +274,12 @@ class ExteactSummary:
                 for k in range(len(list_word2)):
                     if key_word[i] == list_word2[k]:
                         word_vector2[i] += 1
-            
             # 输出向量
             dist1 = float(
                 np.dot(word_vector1, word_vector2) / (np.linalg.norm(word_vector1) * np.linalg.norm(word_vector2)))
             return dist1
         
         def REL_E(E2):
-<<<<<<< HEAD
-            """
-            :return: REL(E)
-            """
-=======
-            '''
-            :return: REL(E)
-            '''
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
             rel_e = 0
             for s_dot in V:
                 SUM_E = 0
@@ -436,10 +341,10 @@ class ExteactSummary:
                 print("append to E: = ", s_hat)
                 E.append(s_hat)
             U.remove(s_hat)
-        
         return E
     
     def cut_sent(self, para):
+        
         para = re.sub('([。！？\?])([^”’])', r"\1\n\2", para)  # 单字符断句符
         para = re.sub('(\.{6})([^”’])', r"\1\n\2", para)  # 英文省略号
         para = re.sub('(\…{2})([^”’])', r"\1\n\2", para)  # 中文省略号
@@ -451,13 +356,6 @@ class ExteactSummary:
 
 
 def getlda():
-<<<<<<< HEAD
-    """
-    lda training function
-    :return:
-    """
-=======
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
     predata = PreDealData()
     corpus = predata.get_cuted_setence()
     print("corpus length  = ", len(corpus))
@@ -514,34 +412,28 @@ def getExtract():
         print("candidate setences of topic %d" % i, " = ", topic_V)
         TW = theta_list[i]
         print("topic %d : " % i, TW)
-<<<<<<< HEAD
         E = ExteactSummary().getSummaryExtraction(random.sample(topic_V, 30), p_theta, theta_list, i, TW)
-=======
-        E = ExteactSummary().getSummaryExtraction(random.sample(topic_V, 100), p_theta, theta_list, i, TW)
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
-        print("*" * 200)
-        print("select setence = ", E)
-        print("select setence length = ", len(E))
-        with open("result.txt", "a+") as f:
-            f.write("Topic " + str(i) + " : ")
-            f.write(" ".join(E))
-            f.write("\n")
+    
+    print("*" * 200)
+    print("select setence = ", E)
+    print("select setence length = ", len(E))
+    with open("result.txt", "a+") as f:
+        f.write("Topic " + str(i) + " : ")
+        f.write(" ".join(E))
+        f.write("\n")
     print("#" * 100)
 
 
 def main():
     # predata = PreDealData()
     # predata.split_setentce_to_words()
-<<<<<<< HEAD
+    
     start_time = datetime.now()
     print("strat time = ", start_time)
     getlda()
     end_time = datetime.now()
     print("strat time = ", end_time)
     print("all time cost = ", end_time - start_time)
-=======
-    # getlda()
->>>>>>> e949ed10e195d8518d212a9f5334a3f0629e4e66
     getExtract()
 
 
